@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: farming-assistant-api
+    env: python
+    buildCommand: pip install -r Dataset/backend/requirements.txt
+    startCommand: cd Dataset/backend && gunicorn app:app
+    envVars:
+      - key: WEATHER_API_KEY
+        sync: false
