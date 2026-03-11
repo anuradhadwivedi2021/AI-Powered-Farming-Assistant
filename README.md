@@ -10,7 +10,7 @@ Smart farming decision support system using Artificial Intelligence and Machine 
 - **Student Name:** Anuradha Dwivedi  
 - **PRN:** 22456010275  
 - **College:** JSPM University, Pune  
-- **Course:** B.Sc Computer Science  
+- **Course:** Bachalour of computer science
 - **Academic Year:** 2025 – 2026  
 
 ---
@@ -123,4 +123,5 @@ Email: anuradha.dwivedi2021@gmail.com
 ---
 
 ⭐ If you like this project, consider giving it a star on GitHub!
+
 
