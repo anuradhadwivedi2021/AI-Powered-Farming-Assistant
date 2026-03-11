@@ -105,7 +105,7 @@ def recommend_crop():
 @app.route('/api/weather', methods=['GET'])
 def get_weather():
     city = request.args.get('city', 'Pune')
-    api_key = os.getenv('WEATHER_API_KEY', 'd42752eb66da15596fb238312ad4c712')
+    api_key = os.getenv('WEATHER_API_KEY', '9cb2d6f564b24643ec8247378d1bbc2e')
 
     if not api_key:
         return jsonify({
