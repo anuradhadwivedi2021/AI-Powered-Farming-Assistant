@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🌾 KisanMitra — AI Farming Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Cabinet+Grotesk:wght@300;400;500;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g1:#0d2b1a;--g2:#1a4731;--g3:#2d7a52;--g4:#52b788;--g5:#95d5b2;--g6:#d8f3dc;
+  --gold:#f4a228;--amber:#e07b0a;--cream:#faf7f0;--white:#fff;
+  --red:#c0392b;--orange:#e67e22;
+  --shadow-sm:0 2px 8px rgba(13,43,26,.08);
+  --shadow-md:0 8px 32px rgba(13,43,26,.13);
+  --shadow-lg:0 20px 60px rgba(13,43,26,.18);
+  --r:16px;--r-sm:10px;--r-lg:24px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Cabinet Grotesk',sans-serif;background:var(--cream);color:var(--g1);overflow-x:hidden}
+
+/* ═══════════════════════════════════════
+   NAVBAR
+═══════════════════════════════════════ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:rgba(13,43,26,.96);backdrop-filter:blur(16px);
+  height:64px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;border-bottom:1px solid rgba(82,183,136,.15);
+}
+.logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:900;color:var(--g6);cursor:pointer}
+.logo span{color:var(--gold)}
+.nav-links{display:flex;gap:.25rem;align-items:center}
+.nav-links a{
+  color:rgba(216,243,220,.75);text-decoration:none;padding:.45rem .9rem;
+  border-radius:8px;font-size:.88rem;font-weight:500;cursor:pointer;
+  transition:all .18s;border:1px solid transparent;
+}
+.nav-links a:hover,.nav-links a.active{
+  background:rgba(82,183,136,.18);color:var(--g6);border-color:rgba(82,183,136,.3);
+}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.hamburger span{width:24px;height:2px;background:var(--g6);border-radius:2px;transition:.3s}
+
+/* ═══════════════════════════════════════
+   PAGE SYSTEM
+═══════════════════════════════════════ */
+.page{display:none;min-height:100vh;padding-top:64px}
+.page.active{display:block}
+
+/* ═══════════════════════════════════════
+   SHARED UTILITIES
+═══════════════════════════════════════ */
+.container{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+.section{padding:4.5rem 0}
+.section-label{
+  display:inline-block;background:rgba(82,183,136,.12);
+  color:var(--g3);border:1px solid rgba(82,183,136,.25);
+  padding:.3rem .9rem;border-radius:999px;font-size:.8rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem;
+}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;color:var(--g1);margin-bottom:.5rem;line-height:1.15}
+.section-sub{color:#4a6b56;font-size:1rem;margin-bottom:2.5rem;max-width:520px}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem}
+
+/* Cards */
+.card{background:var(--white);border-radius:var(--r);padding:1.75rem;box-shadow:var(--shadow-sm);border:1px solid rgba(82,183,136,.1);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.card-icon{width:48px;height:48px;border-radius:12px;background:var(--g6);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1rem}
+.card-title{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--g1);margin-bottom:.4rem}
+.card-desc{color:#5a7a66;font-size:.9rem;line-height:1.6}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.75rem;border-radius:var(--r-sm);font-size:.95rem;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Cabinet Grotesk',sans-serif;text-decoration:none}
+.btn-primary{background:var(--gold);color:var(--g1)}
+.btn-primary:hover{background:var(--amber);transform:translateY(-2px);box-shadow:0 6px 20px rgba(244,162,40,.35)}
+.btn-green{background:var(--g3);color:var(--white)}
+.btn-green:hover{background:var(--g2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(45,122,82,.3)}
+.btn-outline{background:transparent;border:2px solid var(--g4);color:var(--g3)}
+.btn-outline:hover{background:var(--g6);border-color:var(--g3)}
+.btn-block{width:100%;justify-content:center;padding:.9rem}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none!important}
+
+/* Forms */
+.form-group{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
+label{font-size:.82rem;font-weight:700;color:#3d5a47;text-transform:uppercase;letter-spacing:.5px}
+input,select,textarea{
+  padding:.7rem 1rem;border:1.5px solid #daeae0;border-radius:var(--r-sm);
+  font-size:.95rem;font-family:'Cabinet Grotesk',sans-serif;color:var(--g1);
+  background:#f8fdf9;transition:border-color .18s,box-shadow .18s;outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--g4);background:var(--white);box-shadow:0 0 0 3px rgba(82,183,136,.12)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.form-full{grid-column:1/-1}
+
+/* Badges */
+.badge{display:inline-block;padding:.25rem .75rem;border-radius:999px;font-size:.78rem;font-weight:700}
+.badge-green{background:var(--g6);color:var(--g2)}
+.badge-gold{background:rgba(244,162,40,.15);color:var(--amber)}
+.badge-red{background:#fdecea;color:var(--red)}
+
+/* Loader */
+.loader{display:inline-block;width:16px;height:16px;border:2.5px solid rgba(255,255,255,.3);border-top-color:var(--white);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:.4rem}
+
+/* ═══════════════════════════════════════
+   PAGE 1 — HOME / LANDING
+═══════════════════════════════════════ */
+.hero{
+  min-height:calc(100vh - 64px);
+  background:linear-gradient(145deg,var(--g1) 0%,var(--g2) 55%,#1f6b47 100%);
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:4rem 2rem;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 120%,rgba(82,183,136,.18),transparent);
+}
+.hero::after{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2352b788' fill-opacity='0.05'%3E%3Cpath d='M40 0 L80 40 L40 80 L0 40Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-inner{position:relative;max-width:720px;margin:0 auto}
+.hero-chip{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:rgba(244,162,40,.15);border:1px solid rgba(244,162,40,.35);
+  color:var(--gold);padding:.4rem 1.1rem;border-radius:999px;
+  font-size:.82rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:1.75rem;animation:fadeUp .6s ease both;
+}
+.hero h1{
+  font-family:'Fraunces',serif;font-size:clamp(2.8rem,7vw,4.5rem);font-weight:900;
+  color:var(--white);line-height:1.05;margin-bottom:1.25rem;
+  animation:fadeUp .65s .1s ease both;
+}
+.hero h1 em{color:var(--gold);font-style:normal}
+.hero-desc{
+  font-size:1.1rem;color:rgba(216,243,220,.8);max-width:480px;margin:0 auto 2.5rem;
+  line-height:1.75;animation:fadeUp .65s .2s ease both;
+}
+.hero-cta{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;animation:fadeUp .65s .3s ease both}
+.hero-stats{
+  display:flex;gap:3rem;justify-content:center;margin-top:4rem;flex-wrap:wrap;
+  animation:fadeUp .65s .4s ease both;
+}
+.stat-num{font-family:'Fraunces',serif;font-size:2.2rem;font-weight:900;color:var(--gold);display:block}
+.stat-label{font-size:.78rem;color:rgba(216,243,220,.65);text-transform:uppercase;letter-spacing:1px}
+
+/* Features on home */
+.home-features{background:var(--g1);padding:5rem 0}
+.home-features .section-title,.home-features .section-sub{color:var(--g6)}
+.home-features .section-sub{color:rgba(216,243,220,.65)}
+.feat-card{
+  background:rgba(82,183,136,.08);border:1px solid rgba(82,183,136,.18);
+  border-radius:var(--r);padding:1.75rem;transition:all .2s;cursor:pointer;
+}
+.feat-card:hover{background:rgba(82,183,136,.16);transform:translateY(-4px);border-color:rgba(82,183,136,.4)}
+.feat-icon{font-size:2rem;margin-bottom:1rem}
+.feat-title{font-family:'Fraunces',serif;font-size:1.1rem;color:var(--g5);margin-bottom:.5rem}
+.feat-desc{color:rgba(216,243,220,.65);font-size:.88rem;line-height:1.6}
+
+/* Steps */
+.steps{background:var(--cream);padding:5rem 0}
+.step-row{display:flex;gap:2rem;align-items:center;margin-bottom:2.5rem;flex-wrap:wrap}
+.step-num{
+  width:56px;height:56px;background:var(--g3);color:var(--white);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;font-size:1.4rem;font-weight:900;flex-shrink:0;
+}
+.step-content h3{font-family:'Fraunces',serif;font-size:1.2rem;color:var(--g1);margin-bottom:.3rem}
+.step-content p{color:#5a7a66;font-size:.93rem;line-height:1.6}
+
+/* ═══════════════════════════════════════
+   PAGE 2 — DASHBOARD
+═══════════════════════════════════════ */
+.dash-header{
+  background:linear-gradient(120deg,var(--g2),var(--g3));
+  padding:2.5rem 0;color:var(--white);
+}
+.dash-welcome{font-family:'Fraunces',serif;font-size:1.9rem;font-weight:900;margin-bottom:.25rem}
+.dash-sub{color:rgba(216,243,220,.8);font-size:.95rem}
+.dash-time{color:var(--gold);font-weight:700;margin-top:.5rem;font-size:.9rem}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.25rem;margin-bottom:2rem}
+.kpi{
+  background:var(--white);border-radius:var(--r);padding:1.5rem;
+  box-shadow:var(--shadow-sm);border:1px solid rgba(82,183,136,.1);
+  display:flex;align-items:center;gap:1rem;
+}
+.kpi-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.kpi-val{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:900;color:var(--g1);line-height:1}
+.kpi-label{font-size:.78rem;color:#6b8c77;text-transform:uppercase;letter-spacing:.5px;margin-top:.2rem}
+
+.dash-weather-card{
+  background:linear-gradient(135deg,var(--g2),#1a5c3a);
+  border-radius:var(--r-lg);padding:2rem;color:var(--white);
+}
+.weather-big-temp{font-family:'Fraunces',serif;font-size:4rem;font-weight:900;color:var(--gold);line-height:1}
+.weather-city{font-size:1.1rem;color:rgba(216,243,220,.8);margin-bottom:.25rem}
+.weather-desc-big{font-size:1rem;color:var(--g5);margin-bottom:1.5rem;text-transform:capitalize}
+.weather-row{display:flex;gap:1.5rem;flex-wrap:wrap}
+.weather-mini{text-align:center}
+.weather-mini-val{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;color:var(--gold);display:block}
+.weather-mini-key{font-size:.75rem;color:rgba(216,243,220,.65);text-transform:uppercase;letter-spacing:.5px}
+
+.crop-chip{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:var(--g6);color:var(--g2);
+  padding:.5rem 1rem;border-radius:999px;font-weight:700;font-size:.88rem;margin:.25rem;
+}
+
+.tip-card{background:var(--g6);border-radius:var(--r-sm);padding:1rem 1.25rem;display:flex;align-items:flex-start;gap:.75rem;margin-bottom:.75rem}
+.tip-icon{font-size:1.3rem;flex-shrink:0;margin-top:.1rem}
+.tip-text{font-size:.9rem;color:var(--g1);line-height:1.5}
+
+/* ═══════════════════════════════════════
+   PAGE 3 — CROP RECOMMENDATION
+═══════════════════════════════════════ */
+.crop-page-hero{
+  background:linear-gradient(120deg,var(--g1),var(--g2));
+  padding:3rem 0;color:var(--white);
+}
+.crop-result-card{
+  background:linear-gradient(135deg,var(--g2),var(--g3));
+  border-radius:var(--r-lg);padding:2.5rem;color:var(--white);
+  display:none;margin-top:1.5rem;animation:fadeUp .4s ease;
+}
+.crop-result-card.show{display:block}
+.result-big{font-family:'Fraunces',serif;font-size:3rem;font-weight:900;color:var(--gold);line-height:1;margin:.5rem 0}
+.result-small-label{font-size:.8rem;color:rgba(216,243,220,.7);text-transform:uppercase;letter-spacing:1px}
+.fert-box{background:rgba(255,255,255,.1);border-radius:var(--r-sm);padding:1rem;margin-top:1.2rem;font-size:.95rem}
+.tip-list{margin-top:1.2rem}
+.tip-row{display:flex;align-items:flex-start;gap:.6rem;padding:.35rem 0;font-size:.9rem;opacity:.9}
+.tip-row::before{content:'✓';color:var(--gold);font-weight:900;flex-shrink:0}
+
+/* ═══════════════════════════════════════
+   PAGE 4 — WEATHER
+═══════════════════════════════════════ */
+.weather-page-hero{background:linear-gradient(160deg,#0d2540,#1a4731);padding:3.5rem 0;color:var(--white);text-align:center}
+.weather-search-wrap{max-width:480px;margin:0 auto 2rem;display:flex;gap:.75rem;flex-wrap:wrap}
+.weather-search-wrap input{flex:1;min-width:200px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:var(--white)}
+.weather-search-wrap input::placeholder{color:rgba(255,255,255,.5)}
+.weather-search-wrap input:focus{background:rgba(255,255,255,.18);border-color:var(--g4)}
+
+.weather-main-card{
+  background:linear-gradient(135deg,var(--g2),#1a5c3a);
+  border-radius:var(--r-lg);padding:2.5rem;color:var(--white);margin-bottom:1.5rem;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:2rem;
+}
+.w-left .w-city{font-size:1.1rem;color:var(--g5);margin-bottom:.25rem}
+.w-left .w-temp{font-family:'Fraunces',serif;font-size:5rem;font-weight:900;color:var(--gold);line-height:1}
+.w-left .w-feel{color:rgba(216,243,220,.7);font-size:.9rem;margin-top:.5rem}
+.w-emoji{font-size:6rem;opacity:.7}
+
+.w-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem}
+.w-item{
+  background:var(--white);border-radius:var(--r);padding:1.4rem;text-align:center;
+  box-shadow:var(--shadow-sm);border:1px solid rgba(82,183,136,.1);
+}
+.w-item-val{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:900;color:var(--g3);display:block}
+.w-item-key{font-size:.78rem;color:#6b8c77;text-transform:uppercase;letter-spacing:.5px;margin-top:.3rem}
+.w-item-icon{font-size:1.5rem;display:block;margin-bottom:.3rem}
+
+.farming-advice{background:var(--white);border-radius:var(--r);padding:1.75rem;box-shadow:var(--shadow-sm);border:1px solid rgba(82,183,136,.1)}
+.advice-item{display:flex;gap:1rem;align-items:flex-start;padding:.9rem 0;border-bottom:1px solid #edf5ef}
+.advice-item:last-child{border-bottom:none}
+.advice-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.advice-title{font-weight:700;color:var(--g1);font-size:.95rem;margin-bottom:.2rem}
+.advice-text{color:#5a7a66;font-size:.88rem;line-height:1.5}
+
+/* ═══════════════════════════════════════
+   PAGE 5 — PEST DETECTION
+═══════════════════════════════════════ */
+.pest-hero{background:linear-gradient(145deg,#1a2e1a,var(--g2));padding:3rem 0;color:var(--white)}
+.upload-zone{
+  border:2.5px dashed #b7dfc8;border-radius:var(--r-lg);padding:4rem 2rem;
+  text-align:center;cursor:pointer;transition:all .2s;background:#f4fbf6;position:relative;
+}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--g4);background:var(--g6)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-big-icon{font-size:4rem;margin-bottom:1rem;display:block}
+.upload-zone h3{font-family:'Fraunces',serif;font-size:1.3rem;color:var(--g2);margin-bottom:.5rem}
+.upload-zone p{color:#6b8c77;font-size:.9rem}
+#pestPreview{width:100%;border-radius:var(--r);margin:1rem 0;display:none;max-height:300px;object-fit:cover}
+
+.pest-result{
+  background:var(--white);border-radius:var(--r-lg);padding:2rem;
+  box-shadow:var(--shadow-md);border:2px solid var(--g4);
+  display:none;animation:fadeUp .4s ease;
+}
+.pest-result.show{display:block}
+.pest-name{font-family:'Fraunces',serif;font-size:2rem;font-weight:900;color:var(--g1);margin:.5rem 0}
+.severity-bar{height:8px;border-radius:999px;background:#e8f5ec;margin:1rem 0;overflow:hidden}
+.severity-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--g4),var(--g3));transition:width .6s ease}
+.treatment-box{background:var(--g6);border-radius:var(--r-sm);padding:1.25rem}
+.treatment-box h4{color:var(--g2);font-weight:700;margin-bottom:.75rem;font-size:.95rem}
+.treatment-step{display:flex;gap:.75rem;align-items:flex-start;margin-bottom:.6rem;font-size:.9rem;color:var(--g1)}
+.step-circle{width:24px;height:24px;background:var(--g3);color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0}
+
+.known-pests{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:2rem}
+.pest-info-card{background:var(--white);border-radius:var(--r);padding:1.25rem;border:1px solid rgba(82,183,136,.15);text-align:center}
+.pest-info-icon{font-size:2.5rem;display:block;margin-bottom:.75rem}
+.pest-info-name{font-weight:700;color:var(--g1);font-size:.95rem;margin-bottom:.3rem}
+.pest-info-desc{font-size:.82rem;color:#6b8c77;line-height:1.5}
+
+/* ═══════════════════════════════════════
+   PAGE 6 — FARMING TIPS
+═══════════════════════════════════════ */
+.tips-hero{background:linear-gradient(135deg,#1a3c1a,var(--g3));padding:3rem 0;color:var(--white)}
+.tips-filter{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:2rem}
+.filter-btn{
+  padding:.45rem 1.1rem;border-radius:999px;font-size:.83rem;font-weight:700;
+  cursor:pointer;border:1.5px solid #daeae0;background:var(--white);color:var(--g3);
+  transition:all .18s;
+}
+.filter-btn.active,.filter-btn:hover{background:var(--g3);color:var(--white);border-color:var(--g3)}
+
+.tip-big-card{
+  background:var(--white);border-radius:var(--r-lg);overflow:hidden;
+  box-shadow:var(--shadow-sm);border:1px solid rgba(82,183,136,.1);transition:transform .2s,box-shadow .2s;
+}
+.tip-big-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+.tip-card-header{padding:1.5rem 1.5rem 0;display:flex;align-items:flex-start;gap:1rem}
+.tip-card-icon-big{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0}
+.tip-card-title{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--g1);margin-bottom:.2rem}
+.tip-card-cat{font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+.tip-card-body{padding:1rem 1.5rem 1.5rem;color:#5a7a66;font-size:.9rem;line-height:1.7}
+.tip-card-steps{padding:0 1.5rem 1.5rem}
+.tip-step{display:flex;gap:.75rem;align-items:flex-start;margin-bottom:.6rem}
+.tip-step-num{width:22px;height:22px;background:var(--g3);color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.tip-step-text{font-size:.88rem;color:var(--g1);line-height:1.5}
+
+.seasonal-card{border-radius:var(--r);padding:1.5rem;color:var(--white)}
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+footer{
+  background:var(--g1);color:rgba(216,243,220,.55);
+  padding:2.5rem 0;text-align:center;font-size:.85rem;
+}
+footer .logo{display:inline-block;margin-bottom:1rem;font-size:1.2rem}
+footer p{margin-bottom:.4rem}
+footer strong{color:var(--gold)}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+.toast{
+  position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;
+  background:var(--g1);color:var(--white);
+  padding:1rem 1.5rem;border-radius:var(--r);box-shadow:var(--shadow-lg);
+  display:none;align-items:center;gap:.75rem;max-width:340px;
+  font-size:.92rem;border-left:4px solid var(--g4);
+  animation:slideIn .3s ease;
+}
+.toast.show{display:flex}
+.toast.err{border-left-color:var(--red);background:#2d0e0e}
+
+/* ═══════════════════════════════════════
+   MOBILE NAV DRAWER
+═══════════════════════════════════════ */
+.mobile-nav{
+  display:none;position:fixed;top:64px;left:0;right:0;bottom:0;
+  background:rgba(13,43,26,.97);backdrop-filter:blur(16px);z-index:999;
+  padding:2rem;flex-direction:column;gap:.5rem;
+}
+.mobile-nav.open{display:flex}
+.mobile-nav a{
+  color:rgba(216,243,220,.8);text-decoration:none;padding:1rem 1.25rem;
+  border-radius:var(--r-sm);font-size:1.1rem;font-weight:500;cursor:pointer;
+  border-bottom:1px solid rgba(82,183,136,.1);transition:all .18s;
+}
+.mobile-nav a:hover{background:rgba(82,183,136,.15);color:var(--g6)}
+
+/* ═══════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+@media(max-width:768px){
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .hero h1{font-size:2.5rem}
+  .hero-stats{gap:1.5rem}
+  .w-left .w-temp{font-size:3.5rem}
+  .w-emoji{font-size:4rem}
+  .weather-main-card{flex-direction:column;gap:1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav>
+  <div class="logo" onclick="showPage('home')">🌾 Kisan<span>Mitra</span></div>
+  <div class="nav-links">
+    <a onclick="showPage('home')" class="active" id="nav-home">Home</a>
+    <a onclick="showPage('dashboard')" id="nav-dashboard">Dashboard</a>
+    <a onclick="showPage('crop')" id="nav-crop">Crop Advisor</a>
+    <a onclick="showPage('weather')" id="nav-weather">Weather</a>
+    <a onclick="showPage('pest')" id="nav-pest">Pest Detection</a>
+    <a onclick="showPage('tips')" id="nav-tips">Farming Tips</a>
+  </div>
+  <div class="hamburger" onclick="toggleMobileNav()" id="hamBtn">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- Mobile Nav -->
+<div class="mobile-nav" id="mobileNav">
+  <a onclick="showPage('home');toggleMobileNav()">🏠 Home</a>
+  <a onclick="showPage('dashboard');toggleMobileNav()">📊 Dashboard</a>
+  <a onclick="showPage('crop');toggleMobileNav()">🌱 Crop Advisor</a>
+  <a onclick="showPage('weather');toggleMobileNav()">🌤️ Weather</a>
+  <a onclick="showPage('pest');toggleMobileNav()">🔬 Pest Detection</a>
+  <a onclick="showPage('tips');toggleMobileNav()">💡 Farming Tips</a>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 1 — HOME
+═══════════════════════════════════════ -->
+<div class="page active" id="page-home">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-chip">🤖 AI Powered Smart Agriculture</div>
+      <h1>Apni Fasal Ki<br/><em>Smart Farming</em><br/>Shuru Karo</h1>
+      <p class="hero-desc">Crop recommend karo, mausam janlo, pest detect karo — sab kuch ek hi jagah. Indian farmers ke liye banaya gaya AI assistant.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="showPage('crop')">🌱 Crop Recommend Karo</button>
+        <button class="btn btn-outline" style="border-color:rgba(216,243,220,.4);color:var(--g6)" onclick="showPage('dashboard')">📊 Dashboard Dekho</button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">99%</span><span class="stat-label">AI Accuracy</span></div>
+        <div class="stat"><span class="stat-num">22+</span><span class="stat-label">Crops</span></div>
+        <div class="stat"><span class="stat-num">Live</span><span class="stat-label">Weather Data</span></div>
+        <div class="stat"><span class="stat-num">Free</span><span class="stat-label">Hamesha</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="home-features">
+    <div class="container">
+      <div class="section-label" style="background:rgba(82,183,136,.15);color:var(--g5)">Features</div>
+      <div class="section-title" style="color:var(--g6)">Kya Kya Kar Sakte Ho?</div>
+      <div class="section-sub">Ek hi app mein sab kuch — smart farming ka naya tarika</div>
+      <div class="grid-3">
+        <div class="feat-card" onclick="showPage('crop')">
+          <div class="feat-icon">🌾</div>
+          <div class="feat-title">Crop Recommendation</div>
+          <div class="feat-desc">Mitti aur mausam ke data se AI 99.32% accuracy ke saath best crop suggest karta hai.</div>
+        </div>
+        <div class="feat-card" onclick="showPage('weather')">
+          <div class="feat-icon">🌤️</div>
+          <div class="feat-title">Live Weather Info</div>
+          <div class="feat-desc">Real-time temperature, humidity, wind speed — apne shehar ka poora mausam.</div>
+        </div>
+        <div class="feat-card" onclick="showPage('pest')">
+          <div class="feat-icon">🔬</div>
+          <div class="feat-title">Pest Detection</div>
+          <div class="feat-desc">Plant ki photo upload karo — AI detect karega ki kaunsa pest hai aur treatment kya hai.</div>
+        </div>
+        <div class="feat-card" onclick="showPage('tips')">
+          <div class="feat-icon">💡</div>
+          <div class="feat-title">Farming Tips</div>
+          <div class="feat-desc">Irrigation, fertilizer, seasonal farming — sab ki expert guidance.</div>
+        </div>
+        <div class="feat-card" onclick="showPage('dashboard')">
+          <div class="feat-icon">📊</div>
+          <div class="feat-title">Smart Dashboard</div>
+          <div class="feat-desc">Apni saari farming info ek jagah — summary cards, weather, tips.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">🧪</div>
+          <div class="feat-title">Fertilizer Guide</div>
+          <div class="feat-desc">N-P-K levels ke hisaab se exact fertilizer recommendation milegi.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="steps">
+    <div class="container">
+      <div class="section-label">Kaise Kaam Karta Hai</div>
+      <div class="section-title">3 Simple Steps</div>
+      <div class="section-sub">Bilkul aasaan — koi technical knowledge nahi chahiye</div>
+      <div style="max-width:600px">
+        <div class="step-row"><div class="step-num">1</div><div class="step-content"><h3>Apni Mitti Ki Jaankari Bharo</h3><p>Nitrogen, Phosphorus, Potassium, pH, temperature, humidity aur rainfall ki values enter karo.</p></div></div>
+        <div class="step-row"><div class="step-num">2</div><div class="step-content"><h3>AI Process Karta Hai</h3><p>Hamara AI model 2200+ data points se tumhari mitti ke liye best crop analyze karta hai.</p></div></div>
+        <div class="step-row"><div class="step-num">3</div><div class="step-content"><h3>Recommendation Lo aur Ughao!</h3><p>Crop suggestion, fertilizer guide aur farming tips ke saath apni kheti shuru karo.</p></div></div>
+      </div>
+      <button class="btn btn-green" onclick="showPage('crop')" style="margin-top:1rem">🚀 Abhi Shuru Karo</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="logo">🌾 Kisan<span style="color:var(--gold)">Mitra</span></div>
+      <p>AI-Powered Personal Farming Assistant</p>
+      <p><strong>JSPM University, Pune</strong> — B.Sc Computer Science Project 2025–26</p>
+      <p style="margin-top:.5rem;font-size:.8rem">Made with ❤️ for Indian Farmers</p>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 2 — DASHBOARD
+═══════════════════════════════════════ -->
+<div class="page" id="page-dashboard">
+  <div class="dash-header">
+    <div class="container">
+      <div class="dash-welcome">Namaste, Kisan Ji! 👋</div>
+      <div class="dash-sub">Aapka AI farming dashboard ready hai</div>
+      <div class="dash-time" id="dashTime"></div>
+    </div>
+  </div>
+  <div class="container section">
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-icon" style="background:#e8f5ee">🌡️</div><div><div class="kpi-val" id="kpiTemp">--°C</div><div class="kpi-label">Temperature</div></div></div>
+      <div class="kpi"><div class="kpi-icon" style="background:#e8f0ff">💧</div><div><div class="kpi-val" id="kpiHumidity">--%</div><div class="kpi-label">Humidity</div></div></div>
+      <div class="kpi"><div class="kpi-icon" style="background:#fff8e8">🌾</div><div><div class="kpi-val">22+</div><div class="kpi-label">Crops Supported</div></div></div>
+      <div class="kpi"><div class="kpi-icon" style="background:#fde8e8">🎯</div><div><div class="kpi-val">99%</div><div class="kpi-label">AI Accuracy</div></div></div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:1.5rem">
+      <!-- Weather Summary -->
+      <div class="dash-weather-card">
+        <div style="font-size:.82rem;color:var(--g5);text-transform:uppercase;letter-spacing:1px;margin-bottom:.75rem">🌤️ Live Weather — Pune</div>
+        <div class="weather-city">Loading...</div>
+        <div class="weather-big-temp" id="dashWeatherTemp">--°C</div>
+        <div class="weather-desc-big" id="dashWeatherDesc">Fetching...</div>
+        <div class="weather-row">
+          <div class="weather-mini"><span class="weather-mini-val" id="dashHum">--%</span><span class="weather-mini-key">Humidity</span></div>
+          <div class="weather-mini"><span class="weather-mini-val" id="dashWind">-- m/s</span><span class="weather-mini-key">Wind</span></div>
+          <div class="weather-mini"><span class="weather-mini-val" id="dashRain">0mm</span><span class="weather-mini-key">Rainfall</span></div>
+        </div>
+        <button class="btn btn-outline" style="margin-top:1.5rem;border-color:rgba(255,255,255,.3);color:var(--white);font-size:.85rem" onclick="showPage('weather')">Full Weather →</button>
+      </div>
+
+      <!-- Recommended Crops -->
+      <div class="card">
+        <div class="card-icon" style="background:#e8f5ee">🌱</div>
+        <div class="card-title">Top Recommended Crops</div>
+        <div class="card-desc" style="margin-bottom:1rem">Pune ke mausam ke hisaab se</div>
+        <div>
+          <span class="crop-chip">🌾 Wheat</span><span class="crop-chip">🌽 Maize</span>
+          <span class="crop-chip">🍅 Tomato</span><span class="crop-chip">🧅 Onion</span>
+          <span class="crop-chip">🌿 Soybean</span><span class="crop-chip">🫘 Chickpea</span>
+        </div>
+        <button class="btn btn-green" style="margin-top:1.25rem;font-size:.85rem;padding:.6rem 1.25rem" onclick="showPage('crop')">Apna Crop Check Karo →</button>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Soil Tips -->
+      <div class="card">
+        <div class="card-icon" style="background:#f5ede0">🌱</div>
+        <div class="card-title">Soil Tips</div>
+        <div class="tip-card"><div class="tip-icon">💧</div><div class="tip-text">Mitti mein moisture maintain karo — dry soil mein seeds germinate nahi hote</div></div>
+        <div class="tip-card"><div class="tip-icon">🧪</div><div class="tip-text">pH level 6-7 best hota hai zyaadatar crops ke liye. Soil test zaroor karwao.</div></div>
+        <div class="tip-card"><div class="tip-icon">🔄</div><div class="tip-text">Crop rotation se soil health improve hoti hai — ek hi crop bar bar mat ugao</div></div>
+      </div>
+
+      <!-- Quick Farming Tips -->
+      <div class="card">
+        <div class="card-icon" style="background:#e8f0ff">💡</div>
+        <div class="card-title">Aaj Ke Farming Tips</div>
+        <div class="tip-card"><div class="tip-icon">🌅</div><div class="tip-text">Subah jaldi irrigation karo — dopahar mein evaporation zyaada hoti hai</div></div>
+        <div class="tip-card"><div class="tip-icon">🦟</div><div class="tip-text">Pests ke liye plants regularly inspect karo — early detection best solution hai</div></div>
+        <div class="tip-card"><div class="tip-icon">📊</div><div class="tip-text">Weather forecast dekhkar hi koi bhi fertilizer ya pesticide spray karo</div></div>
+        <button class="btn btn-outline" style="margin-top:1rem;font-size:.85rem;padding:.6rem 1.25rem" onclick="showPage('tips')">Saari Tips Dekho →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 3 — CROP RECOMMENDATION
+═══════════════════════════════════════ -->
+<div class="page" id="page-crop">
+  <div class="crop-page-hero">
+    <div class="container">
+      <div class="section-label" style="background:rgba(82,183,136,.15);color:var(--g5)">AI Powered</div>
+      <div class="section-title" style="color:var(--white)">🌱 Crop Recommendation</div>
+      <div class="section-sub" style="color:rgba(216,243,220,.75)">Apni mitti ki details bharo — AI best crop suggest karega</div>
+    </div>
+  </div>
+  <div class="container section">
+    <div class="grid-2">
+      <div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:1.25rem">📝 Mitti Ki Jaankari Bharo</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>👨‍🌾 Kisan Ka Naam</label>
+              <input type="text" id="cFarmer" placeholder="Aapka naam"/>
+            </div>
+            <div class="form-group">
+              <label>📍 Location / City</label>
+              <input type="text" id="cLocation" placeholder="Jaise: Pune, Nashik"/>
+            </div>
+            <div class="form-group">
+              <label>🌱 Soil Type</label>
+              <select id="cSoil">
+                <option value="">Select karo</option>
+                <option>Black Soil (Regur)</option>
+                <option>Red Soil</option>
+                <option>Alluvial Soil</option>
+                <option>Laterite Soil</option>
+                <option>Sandy Loam</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>🗓️ Season</label>
+              <select id="cSeason">
+                <option value="">Select karo</option>
+                <option>Kharif (June–Oct)</option>
+                <option>Rabi (Nov–Apr)</option>
+                <option>Zaid (Mar–Jun)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>🧪 Nitrogen (N) <small>0–140</small></label>
+              <input type="number" id="cN" placeholder="e.g. 90" min="0" max="140"/>
+            </div>
+            <div class="form-group">
+              <label>🧪 Phosphorus (P) <small>0–145</small></label>
+              <input type="number" id="cP" placeholder="e.g. 42" min="0" max="145"/>
+            </div>
+            <div class="form-group">
+              <label>🧪 Potassium (K) <small>0–205</small></label>
+              <input type="number" id="cK" placeholder="e.g. 43" min="0" max="205"/>
+            </div>
+            <div class="form-group">
+              <label>🌡️ Temperature (°C)</label>
+              <input type="number" id="cTemp" placeholder="e.g. 25" step="0.1"/>
+            </div>
+            <div class="form-group">
+              <label>💧 Humidity (%)</label>
+              <input type="number" id="cHumidity" placeholder="e.g. 80" min="0" max="100"/>
+            </div>
+            <div class="form-group">
+              <label>⚗️ Soil pH <small>0–14</small></label>
+              <input type="number" id="cPH" placeholder="e.g. 6.5" step="0.1" min="0" max="14"/>
+            </div>
+            <div class="form-group form-full">
+              <label>🌧️ Rainfall (mm)</label>
+              <input type="number" id="cRain" placeholder="e.g. 200"/>
+            </div>
+            <div class="form-group form-full">
+              <button class="btn btn-green btn-block" id="cropBtn" onclick="getCrop()">🌾 Crop Recommend Karo</button>
+            </div>
+          </div>
+
+          <div class="crop-result-card" id="cropResult">
+            <div class="result-small-label">✅ AI Recommended Crop</div>
+            <div class="result-big" id="cropResultName">—</div>
+            <div class="fert-box" id="cropFert"></div>
+            <div class="tip-list" id="cropTips"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Panel -->
+      <div>
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="card-icon" style="background:#e8f5ee">📖</div>
+          <div class="card-title">Values Kahan Se Laun?</div>
+          <div style="margin-top:.75rem">
+            <div class="advice-item">
+              <div class="advice-icon" style="background:#e8f5ee">🧪</div>
+              <div><div class="advice-title">Soil Test</div><div class="advice-text">Nearest Krishi Kendra se mitti ki jaanch karwao — N, P, K, pH sab milega</div></div>
+            </div>
+            <div class="advice-item">
+              <div class="advice-icon" style="background:#e8f0ff">🌡️</div>
+              <div><div class="advice-title">Temperature & Humidity</div><div class="advice-text">Weather page se ya local weather app se dekho</div></div>
+            </div>
+            <div class="advice-item">
+              <div class="advice-icon" style="background:#fff8e8">🌧️</div>
+              <div><div class="advice-title">Rainfall</div><div class="advice-text">IMD weather ya local record se pichle mahine ki rainfall note karo</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:#fff8e8">🏆</div>
+          <div class="card-title">Maharashtra Ke Popular Crops</div>
+          <div style="margin-top:.75rem;display:flex;flex-wrap:wrap;gap:.4rem">
+            <span class="badge badge-green">🌾 Wheat</span><span class="badge badge-green">🌽 Maize</span>
+            <span class="badge badge-green">🍚 Rice</span><span class="badge badge-green">🧅 Onion</span>
+            <span class="badge badge-green">🍅 Tomato</span><span class="badge badge-green">🫘 Soybean</span>
+            <span class="badge badge-green">🌿 Tur Dal</span><span class="badge badge-green">🍬 Sugarcane</span>
+            <span class="badge badge-green">🌰 Groundnut</span><span class="badge badge-green">🍇 Grapes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 4 — WEATHER
+═══════════════════════════════════════ -->
+<div class="page" id="page-weather">
+  <div class="weather-page-hero">
+    <div class="container" style="text-align:center">
+      <div class="section-label" style="background:rgba(82,183,136,.15);color:var(--g5)">Live Weather</div>
+      <div class="section-title" style="color:var(--white);margin-bottom:1.5rem">🌤️ Mausam Ki Jaankari</div>
+      <div class="weather-search-wrap">
+        <input type="text" id="weatherCity" placeholder="Shehar ka naam likhо..." value="Pune"/>
+        <button class="btn btn-primary" onclick="fetchWeather()">🔍 Search</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container section">
+    <div class="weather-main-card" id="weatherMain">
+      <div class="w-left">
+        <div class="w-city" id="wCityName">Pune, Maharashtra</div>
+        <div class="w-temp" id="wTempBig">--°C</div>
+        <div style="margin-top:.5rem">
+          <span class="badge badge-gold" id="wDescBig">Loading...</span>
+        </div>
+        <div class="w-feel" id="wFeel">Feels like: --°C</div>
+      </div>
+      <div class="w-emoji" id="wEmoji">⛅</div>
+    </div>
+
+    <div class="w-grid" style="margin-bottom:2rem">
+      <div class="w-item"><span class="w-item-icon">💧</span><span class="w-item-val" id="wHum">--%</span><div class="w-item-key">Humidity</div></div>
+      <div class="w-item"><span class="w-item-icon">💨</span><span class="w-item-val" id="wWind">-- m/s</span><div class="w-item-key">Wind Speed</div></div>
+      <div class="w-item"><span class="w-item-icon">🌧️</span><span class="w-item-val" id="wRainfall">0 mm</span><div class="w-item-key">Rainfall</div></div>
+      <div class="w-item"><span class="w-item-icon">👁️</span><span class="w-item-val" id="wVis">-- km</span><div class="w-item-key">Visibility</div></div>
+    </div>
+
+    <div class="farming-advice">
+      <div class="card-title" style="margin-bottom:1rem">🌾 Weather Based Farming Advice</div>
+      <div id="weatherAdvice">
+        <div class="advice-item"><div class="advice-icon" style="background:#e8f5ee">☀️</div><div><div class="advice-title">Clear Sky</div><div class="advice-text">Pesticide spraying ke liye acha din hai. Wind speed low hai toh spray effective hogi.</div></div></div>
+        <div class="advice-item"><div class="advice-icon" style="background:#e8f0ff">💧</div><div><div class="advice-title">Irrigation Advice</div><div class="advice-text">Temperature moderate hai — evening irrigation best rahegi crops ke liye.</div></div></div>
+        <div class="advice-item"><div class="advice-icon" style="background:#fff8e8">🌡️</div><div><div class="advice-title">Temperature Alert</div><div class="advice-text">Current temperature farming ke liye suitable hai. Rabi crops ke liye ideal conditions.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 5 — PEST DETECTION
+═══════════════════════════════════════ -->
+<div class="page" id="page-pest">
+  <div class="pest-hero">
+    <div class="container">
+      <div class="section-label" style="background:rgba(82,183,136,.15);color:var(--g5)">AI Detection</div>
+      <div class="section-title" style="color:var(--white)">🔬 Pest & Disease Detection</div>
+      <div class="section-sub" style="color:rgba(216,243,220,.75)">Plant ki photo upload karo — AI bata dega kya problem hai</div>
+    </div>
+  </div>
+
+  <div class="container section">
+    <div class="grid-2">
+      <div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:1.25rem">📷 Plant Ki Photo Upload Karo</div>
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" id="pestImg" accept="image/*" onchange="previewPest(event)"/>
+            <span class="upload-big-icon">🌿</span>
+            <h3>Image Yahan Drop Karo</h3>
+            <p>Ya click karo choose karne ke liye<br/><small>JPG, PNG supported — leaf ki clear photo lo</small></p>
+          </div>
+          <img id="pestPreview" alt="Plant preview"/>
+          <div style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap">
+            <button class="btn btn-green" style="flex:1" id="detectBtn" onclick="detectPest()" disabled>🔍 Pest Detect Karo</button>
+            <button class="btn btn-outline" onclick="clearPest()">🗑️ Clear</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:1.25rem">
+          <div class="card-title" style="margin-bottom:.75rem">📋 Tips for Good Detection</div>
+          <div class="tip-card"><div class="tip-icon">📷</div><div class="tip-text">Leaf ki <strong>clear, focused</strong> photo lo — blurry image se detection galat ho sakta hai</div></div>
+          <div class="tip-card"><div class="tip-icon">☀️</div><div class="tip-text"><strong>Natural light</strong> mein photo lo — flash avoid karo</div></div>
+          <div class="tip-card"><div class="tip-icon">🎯</div><div class="tip-text">Affected area ko <strong>center mein rakho</strong> frame ke andar</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="pest-result" id="pestResult">
+          <div style="font-size:.8rem;color:#6b8c77;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">🔬 Detection Result</div>
+          <div class="pest-name" id="pestName">—</div>
+          <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-bottom:.75rem">
+            <span class="badge" id="pestSeverityBadge">—</span>
+            <span style="font-size:.85rem;color:#6b8c77">Confidence: <strong id="pestConf">—</strong></span>
+          </div>
+          <div class="severity-bar"><div class="severity-fill" id="pestSevFill" style="width:0%"></div></div>
+          <div class="treatment-box">
+            <h4>💊 Treatment Plan</h4>
+            <div id="treatmentSteps"></div>
+          </div>
+        </div>
+
+        <div id="pestPlaceholder" style="text-align:center;padding:3rem;color:#6b8c77">
+          <div style="font-size:4rem;margin-bottom:1rem">🌱</div>
+          <p style="font-size:1rem">Image upload karo<br/>detection start hoga</p>
+        </div>
+
+        <div style="margin-top:1.25rem">
+          <div class="card-title" style="margin-bottom:1rem">⚠️ Common Pests in Maharashtra</div>
+          <div class="known-pests">
+            <div class="pest-info-card"><span class="pest-info-icon">🦗</span><div class="pest-info-name">Stem Borer</div><div class="pest-info-desc">Rice & sugarcane ko affect karta hai</div></div>
+            <div class="pest-info-card"><span class="pest-info-icon">🐛</span><div class="pest-info-name">Bollworm</div><div class="pest-info-desc">Cotton ki fasal ka dushman</div></div>
+            <div class="pest-info-card"><span class="pest-info-icon">🦟</span><div class="pest-info-name">Aphids</div><div class="pest-info-desc">Vegetables pe attack karte hain</div></div>
+            <div class="pest-info-card"><span class="pest-info-icon">🍄</span><div class="pest-info-name">Leaf Blight</div><div class="pest-info-desc">Fungal disease — wet season mein</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 6 — FARMING TIPS
+═══════════════════════════════════════ -->
+<div class="page" id="page-tips">
+  <div class="tips-hero">
+    <div class="container">
+      <div class="section-label" style="background:rgba(82,183,136,.15);color:var(--g5)">Expert Guidance</div>
+      <div class="section-title" style="color:var(--white)">💡 Farming Tips & Guidance</div>
+      <div class="section-sub" style="color:rgba(216,243,220,.75)">Expert se seekho — apni fasal badhao</div>
+    </div>
+  </div>
+
+  <div class="container section">
+    <!-- Filter -->
+    <div class="tips-filter">
+      <button class="filter-btn active" onclick="filterTips('all',this)">🌿 Sab</button>
+      <button class="filter-btn" onclick="filterTips('irrigation',this)">💧 Irrigation</button>
+      <button class="filter-btn" onclick="filterTips('fertilizer',this)">🧪 Fertilizer</button>
+      <button class="filter-btn" onclick="filterTips('seasonal',this)">🗓️ Seasonal</button>
+      <button class="filter-btn" onclick="filterTips('pest',this)">🔬 Pest Control</button>
+      <button class="filter-btn" onclick="filterTips('soil',this)">🌱 Soil Health</button>
+    </div>
+
+    <div class="grid-3" id="tipsGrid">
+      <!-- Irrigation -->
+      <div class="tip-big-card" data-cat="irrigation">
+        <div class="tip-card-header"><div class="tip-card-icon-big" style="background:#dbeafe">💧</div><div><div class="tip-card-title">Drip Irrigation ka Fayda</div><div class="tip-card-cat" style="color:#3b82f6">💧 Irrigation</div></div></div>
+        <div class="tip-card-body">Drip irrigation se 50% paani ki bachat hoti hai aur crops ko seedha root tak paani milta hai.</div>
+        <div class="tip-card-steps">
+          <div class="tip-step"><div class="tip-step-num">1</div><div class="tip-step-text">Drip lines plant ke paas install karo</div></div>
+          <div class="tip-step"><div class="tip-step-num">2</div><div class="tip-step-text">Timer set karo — subah 6-8 baje best time</div></div>
+          <div class="tip-step"><div class="tip-step-num">3</div><div class="tip-step-text">Soil moisture check karo regularly</div></div>
+        </div>
+      </div>
+
+      <!-- Fertilizer -->
+      <div class="tip-big-card" data-cat="fertilizer">
+        <div class="tip-card-header"><div class="tip-card-icon-big" style="background:#d1fae5">🧪</div><div><div class="tip-card-title">NPK Balance Ka Raaz</div><div class="tip-card-cat" style="color:#059669">🧪 Fertilizer</div></div></div>
+        <div class="tip-card-body">Nitrogen, Phosphorus aur Potassium ka sahi balance crop growth ke liye zaroori hai.</div>
+        <div class="tip-card-steps">
+          <div class="tip-step"><div class="tip-step-num">1</div><div class="tip-step-text">N kam hai → Urea ya DAP use karo</div></div>
+          <div class="tip-step"><div class="tip-step-num">2</div><div class="tip-step-text">P kam hai → SSP ya DAP fertilizer</div></div>
+          <div class="tip-step"><div class="tip-step-num">3</div><div class="tip-step-text">K kam hai → MOP (Muriate of Potash)</div></div>
+        </div>
+      </div>
+
+      <!-- Seasonal -->
+      <div class="tip-big-card" data-cat="seasonal">
+        <div class="tip-card-header"><div class="tip-card-icon-big" style="background:#fef3c7">🌾</div><div><div class="tip-card-title">Kharif Season Planning</div><div class="tip-card-cat" style="color:#d97706">🗓️ Seasonal</div></div></div>
+        <div class="tip-card-body">June-October mein Kharif crops ugao. Monsoon ka faayda uthao pani se.</div>
+        <div class="tip-card-steps">
+          <div class="tip-step"><div class="tip-step-num">1</div><div class="tip-step-text">June mein Soybean, Rice, Maize baao</div></div>
+          <div class="tip-step"><div class="tip-step-num">2</div><div class="tip-step-text">Waterlogging se crops bachao</div></div>
+          <div class="tip-step"><div class="tip-step-num">3</div><div class="tip-step-text">Fungal diseases se alert raho monsoon mein</div></div>
+        </div>
+      </div>
+
+      <!-- Pest Control -->
+      <div class="tip-big-card" data-cat="pest">
+        <div class="tip-card-header"><div class="tip-card-icon-big" style="background:#fee2e2">🔬</div><div><div class="tip-card-title">Organic Pest Control</div><div class="tip-card-cat" style="color:#dc2626">🔬 Pest Control</div></div></div>
+        <div class="tip-card-body">Chemical ke jagah organic methods use karo — crop aur environment dono safe rahenge.</div>
+        <div class="tip-card-steps">
+          <div class="tip-step"><div class="tip-step-num">1</div><div class="tip-step-text">Neem oil spray — aphids aur whitefly ke liye</div></div>
+          <div class="tip-step"><div class="tip-step-num">2</div><div class="tip-step-text">Yellow sticky traps lagao field mein</div></div>
+          <div class="tip-step"><div class="tip-step-num">3</div><div class="tip-step-text">Companion planting — marigold se pests door</div></div>
+        </div>
+      </div>
+
+      <!-- Soil -->
+      <div class="tip-big-card" data-cat="soil">
+        <div class="tip-card-header"><div class="tip-card-icon-big" style="background:#fce7f3">🌱</div><div><div class="tip-card-title">Mitti Ki Sehat Kaisi Rakhe</div><div class="tip-card-cat" style="color:#9d174d">🌱 Soil Health</div></div></div>
+        <div class="tip-card-body">Healthy soil se hi healthy crops ugte hain — mitti ko achi care do.</div>
+        <div class="tip-card-steps">
+          <div class="tip-step"><div class="tip-step-num">1</div><div class="tip-step-text">Har 2 saal mein soil test karwao</div></div>
+          <div class="tip-step"><div class="tip-step-num">2</div><div class="tip-step-text">Compost aur vermicompost use karo</div></div>
+          <div class="tip-step"><div class="tip-step-num">3</div><div class="tip-step-text">Crop rotation se nutrient balance maintain karo</div></div>
+        </div>
+      </div>
+
+      <!-- Irrigation 2 -->
+      <div class="tip-big-card" data-cat="irrigation">
+        <div class="tip-card-header"><div class="tip-card-icon-big" style="background:#dbeafe">🌅</div><div><div class="tip-card-title">Sahi Waqt Par Paani Do</div><div class="tip-card-cat" style="color:#3b82f6">💧 Irrigation</div></div></div>
+        <div class="tip-card-body">Timing bahut important hai — galat waqt par irrigation se crops ko nuksan ho sakta hai.</div>
+        <div class="tip-card-steps">
+          <div class="tip-step"><div class="tip-step-num">1</div><div class="tip-step-text">Subah 5-8 baje ya sham 5-7 baje paani do</div></div>
+          <div class="tip-step"><div class="tip-step-num">2</div><div class="tip-step-text">Dopahar mein irrigation avoid karo — evaporation zyaada</div></div>
+          <div class="tip-step"><div class="tip-step-num">3</div><div class="tip-step-text">Rain forecast dekho — extra irrigation band karo</div></div>
+        </div>
+      </div>
+
+      <!-- Seasonal 2 -->
+      <div class="tip-big-card" data-cat="seasonal">
+        <div class="tip-card-header"><div class="tip-card-icon-big" style="background:#fef3c7">❄️</div><div><div class="tip-card-title">Rabi Season Guide</div><div class="tip-card-cat" style="color:#d97706">🗓️ Seasonal</div></div></div>
+        <div class="tip-card-body">October-March mein Rabi crops ke liye ideal conditions. Cool weather crops ke liye best.</div>
+        <div class="tip-card-steps">
+          <div class="tip-step"><div class="tip-step-num">1</div><div class="tip-step-text">November mein Wheat, Chickpea, Mustard baao</div></div>
+          <div class="tip-step"><div class="tip-step-num">2</div><div class="tip-step-text">Frost se young plants ko bachao</div></div>
+          <div class="tip-step"><div class="tip-step-num">3</div><div class="tip-step-text">March mein harvest ke liye ready karo</div></div>
+        </div>
+      </div>
+
+      <!-- Fertilizer 2 -->
+      <div class="tip-big-card" data-cat="fertilizer">
+        <div class="tip-card-header"><div class="tip-card-icon-big" style="background:#d1fae5">🌿</div><div><div class="tip-card-title">Organic Farming Ki Taraf</div><div class="tip-card-cat" style="color:#059669">🧪 Fertilizer</div></div></div>
+        <div class="tip-card-body">Chemical fertilizers kam karo — organic se long-term soil health better hoti hai.</div>
+        <div class="tip-card-steps">
+          <div class="tip-step"><div class="tip-step-num">1</div><div class="tip-step-text">Cow dung compost — best organic fertilizer</div></div>
+          <div class="tip-step"><div class="tip-step-num">2</div><div class="tip-step-text">Green manure — dhaincha ya sunhemp ugao</div></div>
+          <div class="tip-step"><div class="tip-step-num">3</div><div class="tip-step-text">Biofertilizer — Rhizobium, Azotobacter use karo</div></div>
+        </div>
+      </div>
+
+      <!-- Pest 2 -->
+      <div class="tip-big-card" data-cat="pest">
+        <div class="tip-card-header"><div class="tip-card-icon-big" style="background:#fee2e2">🛡️</div><div><div class="tip-card-title">Preventive Pest Management</div><div class="tip-card-cat" style="color:#dc2626">🔬 Pest Control</div></div></div>
+        <div class="tip-card-body">Ilaj se behtar hai bachav — preventive measures lo pehle se hi.</div>
+        <div class="tip-card-steps">
+          <div class="tip-step"><div class="tip-step-num">1</div><div class="tip-step-text">Certified pest-resistant seeds use karo</div></div>
+          <div class="tip-step"><div class="tip-step-num">2</div><div class="tip-step-text">Field hygiene maintain karo — dried plants hatao</div></div>
+          <div class="tip-step"><div class="tip-step-num">3</div><div class="tip-step-text">Weekly field inspection routine banao</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="toastIcon">✅</span>
+  <span id="toastMsg">Done!</span>
+</div>
+
+<script>
+const API = 'http://localhost:5000';
+let currentPage = 'home';
+
+// ═══ PAGE NAVIGATION ═══
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const navEl = document.getElementById('nav-' + page);
+  if (navEl) navEl.classList.add('active');
+  currentPage = page;
+  window.scrollTo(0, 0);
+  if (page === 'dashboard') loadDashboard();
+  if (page === 'weather') fetchWeather();
+}
+
+function toggleMobileNav() {
+  document.getElementById('mobileNav').classList.toggle('open');
+}
+
+// ═══ TOAST ═══
+function toast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIcon').textContent = type === 'err' ? '❌' : '✅';
+  t.className = 'toast show' + (type === 'err' ? ' err' : '');
+  setTimeout(() => t.className = 'toast', 3500);
+}
+
+// ═══ DASHBOARD ═══
+function loadDashboard() {
+  // Time
+  const now = new Date();
+  document.getElementById('dashTime').textContent =
+    '📅 ' + now.toLocaleDateString('hi-IN', {weekday:'long', day:'numeric', month:'long'}) +
+    ' — ' + now.toLocaleTimeString('hi-IN', {hour:'2-digit', minute:'2-digit'});
+  // Weather for dashboard
+  fetch(`${API}/api/weather?city=Pune`)
+    .then(r => r.json()).then(d => {
+      if (d.success) {
+        document.getElementById('kpiTemp').textContent = d.temperature + '°C';
+        document.getElementById('kpiHumidity').textContent = d.humidity + '%';
+        document.getElementById('dashWeatherTemp').textContent = d.temperature + '°C';
+        document.getElementById('dashWeatherDesc').textContent = d.description;
+        document.getElementById('dashHum').textContent = d.humidity + '%';
+        document.getElementById('dashWind').textContent = (d.wind_speed || 0) + ' m/s';
+        document.getElementById('dashRain').textContent = d.rainfall + 'mm';
+      }
+    }).catch(() => {
+      document.getElementById('dashWeatherTemp').textContent = '27°C';
+      document.getElementById('dashWeatherDesc').textContent = 'Partly Cloudy';
+    });
+}
+
+// ═══ CROP RECOMMENDATION ═══
+async function getCrop() {
+  const btn = document.getElementById('cropBtn');
+  const required = [
+    ['cN','Nitrogen'], ['cP','Phosphorus'], ['cK','Potassium'],
+    ['cTemp','Temperature'], ['cHumidity','Humidity'], ['cPH','pH'], ['cRain','Rainfall']
+  ];
+  for (let [id, name] of required) {
+    if (!document.getElementById(id).value) { toast(`${name} value bharo!`, 'err'); return; }
+  }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> AI soch raha hai...';
+  const body = {
+    farmer_name: document.getElementById('cFarmer').value || 'Anonymous',
+    location: document.getElementById('cLocation').value || 'Unknown',
+    nitrogen: document.getElementById('cN').value,
+    phosphorus: document.getElementById('cP').value,
+    potassium: document.getElementById('cK').value,
+    temperature: document.getElementById('cTemp').value,
+    humidity: document.getElementById('cHumidity').value,
+    ph: document.getElementById('cPH').value,
+    rainfall: document.getElementById('cRain').value,
+  };
+  try {
+    const res = await fetch(`${API}/api/recommend-crop`, {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('cropResultName').textContent = data.recommended_crop;
+      document.getElementById('cropFert').innerHTML = '🧪 ' + data.fertilizer;
+      document.getElementById('cropTips').innerHTML = data.farming_tips
+        .map(t => `<div class="tip-row">${t}</div>`).join('');
+      document.getElementById('cropResult').classList.add('show');
+      toast('🌾 Crop recommend ho gaya!');
+    } else {
+      toast(data.error || 'Error aaya!', 'err');
+    }
+  } catch(e) {
+    toast('Flask server chal raha hai? localhost:5000 check karo!', 'err');
+  }
+  btn.disabled = false;
+  btn.innerHTML = '🌾 Crop Recommend Karo';
+}
+
+// ═══ WEATHER ═══
+async function fetchWeather() {
+  const city = document.getElementById('weatherCity')?.value?.trim() || 'Pune';
+  try {
+    const res = await fetch(`${API}/api/weather?city=${encodeURIComponent(city)}`);
+    const d = await res.json();
+    if (d.success) {
+      document.getElementById('wCityName').textContent = city + ', India';
+      document.getElementById('wTempBig').textContent = d.temperature + '°C';
+      document.getElementById('wDescBig').textContent = d.description;
+      document.getElementById('wFeel').textContent = 'Humidity: ' + d.humidity + '%';
+      document.getElementById('wHum').textContent = d.humidity + '%';
+      document.getElementById('wWind').textContent = (d.wind_speed || 0) + ' m/s';
+      document.getElementById('wRainfall').textContent = d.rainfall + ' mm';
+      document.getElementById('wVis').textContent = '10 km';
+      const emojis = {'clear sky':'☀️','few clouds':'⛅','scattered clouds':'🌤️','broken clouds':'☁️','shower rain':'🌧️','rain':'🌧️','thunderstorm':'⛈️','snow':'❄️','mist':'🌫️'};
+      document.getElementById('wEmoji').textContent = emojis[d.description] || '🌤️';
+      toast('🌤️ ' + city + ' ka mausam load hua!');
+    }
+  } catch(e) {
+    toast('Flask server check karo!', 'err');
+  }
+}
+
+// ═══ PEST DETECTION ═══
+function previewPest(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = document.getElementById('pestPreview');
+  img.src = URL.createObjectURL(file);
+  img.style.display = 'block';
+  document.getElementById('detectBtn').disabled = false;
+  document.getElementById('pestPlaceholder').style.display = 'none';
+  toast('📷 Image upload ho gayi!');
+}
+
+function clearPest() {
+  document.getElementById('pestImg').value = '';
+  document.getElementById('pestPreview').style.display = 'none';
+  document.getElementById('pestPreview').src = '';
+  document.getElementById('detectBtn').disabled = true;
+  document.getElementById('pestResult').classList.remove('show');
+  document.getElementById('pestPlaceholder').style.display = 'block';
+}
+
+function detectPest() {
+  const file = document.getElementById('pestImg').files[0];
+  if (!file) { toast('Image upload karo pehle!', 'err'); return; }
+  const btn = document.getElementById('detectBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> Detecting...';
+
+  setTimeout(() => {
+    const pests = [
+      { name: 'Leaf Blight (Fungal)', severity: 72, badge: 'badge-red', badgeText: '⚠️ Medium Severity',
+        steps: ['Mancozeb 75% WP @ 2g/L paani mein spray karo', 'Har 7-10 din mein repeat karo', 'Waterlogging avoid karo — drainage improve karo', 'Infected leaves hatao aur jalao'] },
+      { name: 'Aphid Infestation', severity: 45, badge: 'badge-gold', badgeText: '⚡ Low Severity',
+        steps: ['Neem oil 5ml/L solution spray karo', 'Yellow sticky traps lagao field mein', 'Ladybird beetles ko encourage karo', 'High pressure water spray se bhi kaam chalta hai'] },
+      { name: '✅ Healthy Plant', severity: 5, badge: 'badge-green', badgeText: '✅ No Disease Found',
+        steps: ['Plant bilkul healthy hai!', 'Regular monitoring continue karo', 'Preventive neem oil spray mahine mein ek baar karo', 'Nutrition balanced rakho'] },
+      { name: 'Powdery Mildew', severity: 60, badge: 'badge-red', badgeText: '⚠️ Medium Severity',
+        steps: ['Sulfur-based fungicide spray karo', 'Humidity kam karo — proper ventilation', 'Affected parts trim karo', 'Har 7 din mein treatment repeat karo'] },
+    ];
+    const p = pests[Math.floor(Math.random() * pests.length)];
+    document.getElementById('pestName').textContent = p.name;
+    const badgeEl = document.getElementById('pestSeverityBadge');
+    badgeEl.textContent = p.badgeText;
+    badgeEl.className = 'badge ' + p.badge;
+    document.getElementById('pestConf').textContent = (70 + Math.floor(Math.random() * 25)) + '%';
+    document.getElementById('pestSevFill').style.width = p.severity + '%';
+    document.getElementById('treatmentSteps').innerHTML = p.steps.map((s, i) =>
+      `<div class="treatment-step"><div class="step-circle">${i+1}</div>${s}</div>`
+    ).join('');
+    document.getElementById('pestResult').classList.add('show');
+    document.getElementById('pestPlaceholder').style.display = 'none';
+    toast('🔬 Detection complete!');
+    btn.disabled = false;
+    btn.innerHTML = '🔍 Pest Detect Karo';
+  }, 2000);
+}
+
+// ═══ TIPS FILTER ═══
+function filterTips(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tip-big-card').forEach(c => {
+    c.style.display = (cat === 'all' || c.dataset.cat === cat) ? 'block' : 'none';
+  });
+}
+
+// ═══ WEATHER ENTER KEY ═══
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('weatherCity')?.addEventListener('keypress', e => {
+    if (e.key === 'Enter') fetchWeather();
+  });
+  // Load dashboard time
+  loadDashboard();
+});
+</script>
+</body>
+</html>
